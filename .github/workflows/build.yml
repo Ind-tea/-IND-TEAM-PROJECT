@@ -7,6 +7,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,13 +24,10 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.7
-
       - name: Build both applications
-        run: gradle :app:assembleDebug :ind-team-token:assembleDebug
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon --max-workers=2 :app:assembleDebug :ind-team-token:assembleDebug
 
       - name: Save APK files
         uses: actions/upload-artifact@v4
@@ -36,3 +36,4 @@ jobs:
           path: |
             app/build/outputs/apk/debug/*.apk
             ind-team-token/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
